@@ -1,16 +1,22 @@
-init();
-let grid = addGrid();
-addFog()
-addLight();
+window.onload = function() { 
+  init();
+  let grid = addGrid();
+  addLight();
 
+  let cube = addCube(100, 100, 100);
+  hoverer.addObject(cube);
+  let cubeInfo = new InfoDiv(cube, 'cube', [0,100/2,0], hoverer);
 
+  let cube2 = addCube(98, 23, 100);
+  cube2.position.x += 60;
+  cube2.position.z += 38;
+  hoverer.addObject(cube2);
+  let cube2Info = new InfoDiv(cube2, 'cube2', [20,23/2,0], hoverer);
 
-let cube = addCube();
-hoverer.addObject(cube);
+  addPlain();
 
-addPlain();
-
-animate();
+  animate();
+}
 
 
 function addGrid() {
@@ -21,19 +27,18 @@ function addGrid() {
 }
 
 
-function addCube() {
+function addCube(xs,ys,zs) {
 
-  var geometry = new THREE.BoxBufferGeometry( 100, 100, 100 );
+  var geometry = new THREE.BoxBufferGeometry( xs, ys, zs );
   var material = new THREE.MeshPhongMaterial( { 
     color: 0xffffff, 
     // flatShading: true 
   } );
   var mesh = new THREE.Mesh( geometry, material );
-  mesh.position.y = 50;
-  
+  mesh.position.y = ys/2;
   mesh.castShadow = true;
   mesh.receiveShadow = true;
-
+  
   scene.add( mesh );
 
   return mesh;
@@ -59,7 +64,7 @@ function addPlain() {
 function addLight() {
 
   var dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
-  dirLight.position.set( 1*200, 1*200, 1*200 );
+  dirLight.position.set( 1*200, 1.5*200, 2*200 );
 
   dirLight.castShadow = true;
   dirLight.shadow.mapSize.width = 512*2;  // default
@@ -84,12 +89,7 @@ function addLight() {
 
 }
 
-function addFog() {
-  scene.fog = new THREE.FogExp2( 
-    new THREE.Color( '#ffffff' ), 
-    0.002
-  );
-}
+
 ////////////
 
 

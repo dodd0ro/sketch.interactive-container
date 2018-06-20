@@ -12,12 +12,8 @@ controlsFolder.add(controls, 'autoRotateSpeed', 0, 1);
 controlsFolder.add(controls, 'minPolarAngle', 0, Math.PI);
 controlsFolder.add(controls, 'maxPolarAngle', 0, Math.PI);
 
-var renderFolder = gui.addFolder('render');
-renderFolder.open();
-renderFolder.add(renderer.shadowMap, 'enabled').onFinishChange();
-
 var highlighterFolder = gui.addFolder('highlighter');
-highlighterFolder.open();
+// highlighterFolder.open();
 highlighterFolder.add(highlighter.pass, 'edgeStrength', 0.01, 10 );
 highlighterFolder.add(highlighter.pass, 'edgeGlow', 0.0, 1.0 , 0.1);
 highlighterFolder.add(highlighter.pass, 'edgeThickness', 1, 4 );

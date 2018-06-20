@@ -1,11 +1,20 @@
 class Highlighter {
   constructor(canvas, scene, camera, texturePath) {
 
+    this.canvas = canvas;
+
     this.pass = new THREE.OutlinePass( 
-      new THREE.Vector2( canvas.offsetWidth, canvas.offsetHeight ),
+      new THREE.Vector2( this.canvas.clientWidth, this.canvas.clientHeight ),
       scene, camera 
     );
+
     this.pass.overlayMaterial.blending = THREE.SubtractiveBlending // OMG!!!!
+    
+    this.pass.visibleEdgeColor.set( 0xFF - (new THREE.Color('#38ff38')).getHex() );
+    this.pass.hiddenEdgeColor.set( 0xFF - (new THREE.Color('#daedda')).getHex() );
+    this.pass.pulsePeriod = 1.5;  // 2
+    this.pass.edgeStrength = 3;  // 3
+    this.pass.edgeThickness = 1; // 1
     
     if (texturePath) {
       var loader = new THREE.TextureLoader();
@@ -22,9 +31,12 @@ class Highlighter {
     this.pass.selectedObjects.push(obj);
   }
 
+  set(obj) {
+    this.pass.selectedObjects = [obj];
+  }
+
   clear(obj) {
     this.pass.selectedObjects = [];
   }
-
 
 }

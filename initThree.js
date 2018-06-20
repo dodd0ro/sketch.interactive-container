@@ -1,31 +1,42 @@
-var canvas;
+var containerDiv, canvasWidth, canvasHeight;
 var scene, camera;
+var renderer, labelRenderer, composer, composerPasses = [];
 var controls, hoverer, highlighter;
-var renderer, composer, composerPasses = [];
 
 ////////////////////////////
 
+  
 function animate() {
 
   requestAnimationFrame( animate );
   
+  ///
+
   for (let i = 0; i < animate.funcs.length; i++) {
     animate.funcs[i]();
   }
 
+  controls.update();
+  hoverer.update()
+
+  ///
+
   for (let i = 0; i < animate.funcsLast.length; i++) {
     animate.funcsLast[i]();
   }
-  
+
+  // renderer.render(scene, camera)
+  labelRenderer.render( scene, camera )
+  composer.render()
 
 };
 
 animate.funcs = [];
-animate.add = function(func) {
+animate.onTick= function(func) {
   animate.funcs.push(func);
 }
 animate.funcsLast = [];
-animate.addLast = function(func) {
+animate.onTickEnd = function(func) {
   animate.funcsLast.push(func);
 }
 
@@ -33,86 +44,99 @@ animate.addLast = function(func) {
 
 function init() {
 
-  canvas = document.getElementById( CANVAS_ID );
+  /* CONTAINER DIV */
+  
+  containerDiv = document.getElementById( THREE_DIV_ID );
+  containerDiv.style.position = 'relative';
+  if (!(containerDiv.clientWidth && containerDiv.clientHeight)) {
+    throw "Container div doesn't have size";
+  }
+  canvasWidth = containerDiv.clientWidth;
+  canvasHeight = containerDiv.clientHeight;
+
 
   /* SCENE */
 
   scene = new THREE.Scene();
   scene.background = new THREE.Color('white')
+  scene.fog = new THREE.FogExp2( 
+    new THREE.Color( '#ffffff' ), 
+    0.0025
+  );
+
   /* CAMERA */
 
   camera = new THREE.PerspectiveCamera(
     60,
-    canvas.offsetWidth / canvas.offsetHeight,
+    canvasWidth / canvasHeight,
     1,
     1000
   );
-  camera.position.set( 0, 280, 180 );
-  // camera.lookAt( scene.position );
-
-
-  /* CONTROLS */
-
-  controls = new THREE.OrbitControls( camera, canvas ); 
+  camera.position.set( -100, 150, 250 );
   
-    controls.rotateSpeed  = 0.20  // 1
 
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.1  // 0.25
-
-    controls.minPolarAngle = Math.PI * 0.1;
-    controls.maxPolarAngle = Math.PI * 0.49;
-
-    controls.autoRotate = true;
-    controls.autoRotateSpeed = 0.05;  // 2
-
-    controls.enableKeys = false;
-    controls.enablePan = false;
-    controls.enableZoom = false;
-
-  animate.add(()=>controls.update());
-
-  /* HOVERER */
-
-  hoverer = new Hoverer ( camera, canvas );
-
-  highlighter = new Highlighter(
-    canvas, scene, camera, '../../assets/tri_pattern.jpg'
-  );
-  highlighter.pass.visibleEdgeColor.set( 0xFF - (new THREE.Color('#00ff0f')).getHex() );
-  highlighter.pass.hiddenEdgeColor.set( 0xFF - (new THREE.Color('#002001')).getHex() );
-  highlighter.pass.pulsePeriod = 2;  // 2
-  highlighter.pass.edgeStrength = 3;  // 3
-  highlighter.pass.edgeThickness = 1; // 1
-  composerPasses.push(highlighter.pass);
-
-
-  hoverer.onMouseOver = function (obj) {
-    highlighter.add(obj);
-  };
-
-  hoverer.onMouseOut = function (obj) {
-    highlighter.clear();
-
-  };
-
-  animate.add(()=>hoverer.update());
-  
   /* RENDERER */
 
   renderer = new THREE.WebGLRenderer( {
-    canvas: canvas,
     antialias: true,
     // alpha: true,
   });
   renderer.setClearColor( 0xffffff );
-  renderer.setSize( canvas.offsetWidth, canvas.offsetHeight );
-  
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  
-  // animate.addLast(()=>renderer.render(scene, camera));
-  
+
+  renderer.setSize( canvasWidth, canvasHeight );
+  containerDiv.appendChild( renderer.domElement );
+  containerDiv.appendChild( renderer.domElement );
+
+  /* LABEL RENDERER */
+
+  labelRenderer = new THREE.CSS2DRenderer();
+  labelRenderer.setSize( canvasWidth, canvasHeight );
+  labelRenderer.domElement.style.position = 'absolute';
+  labelRenderer.domElement.style.top = 0;
+  labelRenderer.domElement.style.overflow = 'visible'
+  containerDiv.appendChild( labelRenderer.domElement );
+  // document.querySelector('#three > div')
+
+  /* CONTROLS */
+
+  controls = new THREE.OrbitControls( camera, containerDiv ); 
+
+  controls.rotateSpeed  = 0.20  // 1
+
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.1  // 0.25
+
+  controls.minPolarAngle = Math.PI * 0.25;
+  controls.maxPolarAngle = Math.PI * 0.49;
+
+  controls.autoRotate = true;
+  controls.autoRotateSpeed = 0.025;  // 2
+
+  controls.enableKeys = false;
+  controls.enablePan = false;
+  controls.enableZoom = false;
+
+  /* HOVERER */
+
+  hoverer = new Hoverer ( renderer.domElement, camera );
+
+  /* HIGHLIGHTER */
+
+  highlighter = new Highlighter(
+    renderer.domElement, scene, camera, '../../assets/tri_pattern.jpg'
+  );
+  composerPasses.push(highlighter.pass);
+
+  hoverer.onMouseOver(function (obj) {
+    highlighter.set(obj);
+  });
+
+  hoverer.onMouseOut(function (obj) {
+    highlighter.clear();
+  });
+
   /* COMPOSER */
 
   composer = new THREE.EffectComposer( renderer );
@@ -126,23 +150,30 @@ function init() {
 
   let effectFXAA = new THREE.ShaderPass( THREE.FXAAShader );
   effectFXAA.uniforms[ 'resolution' ].value.set( 
-    1 / canvas.offsetWidth, 1 / canvas.offsetHeight 
+    1 / canvasWidth, 1 / canvasHeight 
   );
   effectFXAA.renderToScreen = true;
   composer.addPass( effectFXAA );
 
-  animate.addLast(()=>composer.render());
-  
-
   /* EVENTS */
 
-  canvas.addEventListener( 'resize', function() {
+  containerDiv.addEventListener( 'resize', function() {
 
-    renderer.setSize( canvas.offsetWidth, canvas.offsetHeight );
+    canvasWidth = containerDiv.clientWidth;
+    canvasHeight = containerDiv.clientHeight;
 
     ///
 
-    let aspectRatio = canvas.offsetWidth / canvas.offsetHeight;
+    renderer.setSize( canvasWidth, canvasHeight );
+    labelRenderer.setSize( canvasWidth, canvasHeight );
+    // effectFXAA.uniforms[ 'resolution' ].value.set(  // ???
+    //   1 / canvasWidth, 1 / canvasHeight 
+    // );
+
+    ///
+
+    let aspectRatio = 
+    canvasWidth / canvasHeight;
 
     for (let camera of cameras) {
       camera.aspect = aspectRatio;

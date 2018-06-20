@@ -1,51 +1,76 @@
 class Hoverer {
-  constructor(camera, domElem=window ) {
+  constructor(canvas, camera, containerDiv=null) {
+
+    this.canvas = canvas;
+    this.camera = camera;
+    this.containerDiv = (containerDiv) ? containerDiv : canvas.parentElement;
 
     this.objects = [];
-    this.camera = camera;
     this.raycaster = new THREE.Raycaster();
 
-    this.domElement = domElem;
     this._intersected = null;
     this._mouse = new THREE.Vector2(2, 2);
-    
+    this._onMouseOver = [];
+    this._onMouseOut = [];
 
-    domElem.addEventListener( 'mousemove', function(event) {
-      this._mouse.x = ( event.clientX / this.domElement.offsetWidth ) * 2 - 1;
-      this._mouse.y = - ( event.clientY / this.domElement.offsetHeight ) * 2 + 1;
+    /// EVENT
+
+    this.containerDiv.addEventListener( 'mousemove', function(event) {
+
+      let canvasRect = this.canvas.getBoundingClientRect();
+      let x = event.clientX - canvasRect.left;
+      let y = event.clientY - canvasRect.top;
+
+      this._mouse.x = ( x / this.canvas.clientWidth ) * 2 - 1;
+      this._mouse.y = - ( y / this.canvas.clientHeight ) * 2 + 1;
     }.bind(this), false );
 
-    this.onMouseOver = function() {};
-    this.onMouseOut = function() {};
-
-    // BIND
+    /// BIND
 
     this.update = this.update.bind(this);
 
   }
 
   addObject(obj) {
-
     this.objects.push(obj);
-
   }
 
   update() {
-
     this.raycaster.setFromCamera( this._mouse, this.camera );
     let intersects = this.raycaster.intersectObjects( this.objects );
     
     if ( intersects.length > 0 ) {
       if ( this._intersected != intersects[ 0 ].object ) {
-        if ( this._intersected  ) this.onMouseOut(this._intersected);
+        if ( this._intersected  ) this.doMouseOut();
         this._intersected = intersects[ 0 ].object;
-        this.onMouseOver(this._intersected );
+        this.doMouseOver();
       }
     } else {
-      if ( this._intersected  ) this.onMouseOut(this._intersected);
+      if ( this._intersected  ) {
+        this.doMouseOut();
+      }
       this._intersected  = null;
     }
+  }
 
+  onMouseOut(func) {
+    this._onMouseOut.push(func)
+  }
+
+  onMouseOver(func) {
+    this._onMouseOver.push(func)
+  }
+
+  doMouseOut(func) {
+    for (let func of this._onMouseOut) {
+      func(this._intersected );
+    }
+  }
+
+  doMouseOver(func) {
+    for (let func of this._onMouseOver) {
+      func(this._intersected );
+    }
   }
 
 }

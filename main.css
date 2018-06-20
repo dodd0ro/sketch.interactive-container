@@ -1,4 +1,69 @@
-#three-canvas {
+#three {
     height: 800px;
-    width: 800px;
+    width: 100%;
+    border: 1px dashed silver;
+    margin: auto;
+    
 }
+
+.label_line {
+
+    height: 30px;
+    width: 30px;
+
+    border-left: 4px solid rgba(0, 0, 0, 0.7);
+    transform-origin: left bottom;
+    transform: skew(-40deg); 
+
+}
+
+.label_content {
+    position: relative;
+    left: 26px;
+
+    font-size: 14px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    padding: 4px 10px 4px 10px;
+    font-family: 'Oswald', sans-serif;
+    white-space: nowrap;
+    cursor: pointer;
+    line-height: 1.4;
+    
+    
+}
+
+
+.label_content:hover {
+    background-color: #008000; 
+}
+
+.label_content:hover + .label_line {
+    border-color: #008000;
+}
+
+.label_container {
+    transform: translateY(-50%) translateY(10px) translateX(50%) translateX(-4px);
+}
+
+.label_content > h3 {
+    margin:0.4em;
+}
+.label_content > ul {
+    padding-left: 0.5em;
+    margin: 1em;
+
+}
+
+
+.label > * {
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0.2s, opacity 0.2s linear;
+}
+.label.visible > *{
+    visibility: visible;
+    opacity: 1;
+    
+}
+

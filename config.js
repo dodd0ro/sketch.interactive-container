@@ -1,1 +1,1 @@
-const CANVAS_ID = 'three-canvas'
+const THREE_DIV_ID = 'three';
