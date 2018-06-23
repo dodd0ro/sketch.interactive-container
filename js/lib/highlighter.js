@@ -13,7 +13,7 @@ class Highlighter {
     this.pass.visibleEdgeColor.set( 0xFF - (new THREE.Color('#38ff38')).getHex() );
     this.pass.hiddenEdgeColor.set( 0xFF - (new THREE.Color('#daedda')).getHex() );
     this.pass.pulsePeriod = 1.5;  // 2
-    this.pass.edgeStrength = 3;  // 3
+    this.pass.edgeStrength = 8;  // 3
     this.pass.edgeThickness = 1; // 1
     
     if (texturePath) {

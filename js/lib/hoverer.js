@@ -13,7 +13,7 @@ class Hoverer {
     this._onMouseOver = [];
     this._onMouseOut = [];
 
-    /// EVENT
+    /// EVENT - MOUSEMOVE
 
     this.containerDiv.addEventListener( 'mousemove', function(event) {
 
@@ -76,14 +76,69 @@ class Hoverer {
 }
 
 
-// hoverer.onMouseOver = function (obj) {
+class Visibiler { // VERY BAD!!!
 
-//   obj.currentHex = obj.material.emissive.getHex();
-//   obj.material.emissive.setHex( new THREE.Color('#00ff00').getHex () );
+  constructor(canvas, camera, containerDiv=null) {
+    this.canvas = canvas;
+    this.camera = camera;
+    this.containerDiv = (containerDiv) ? containerDiv : canvas.parentElement;
 
-// };
+    this.objects = [];
+    this.raycaster = new THREE.Raycaster();
 
-// hoverer.onMouseOut = function (obj) {
-//   obj.material.emissive.setHex( obj.currentHex );
+    this._mouse = new THREE.Vector2(2, 2);
 
-// };
+  }
+
+  addObjects(array) {
+    this.objects = this.objects.concat(array);
+  }
+
+  check(vector3d, obj) {
+
+
+    /// get mouse
+
+    let {x, y} = toScreenPosition(vector3d, this.camera);
+
+    let canvasRect = this.canvas.getBoundingClientRect();
+    x = x - canvasRect.left;
+    y = y - canvasRect.top;
+    
+    this._mouse.x = ( x / this.canvas.clientWidth ) * 2 - 1;
+    this._mouse.y = - ( y / this.canvas.clientHeight ) * 2 + 1;
+
+    ///
+
+    this.raycaster.setFromCamera( this._mouse, this.camera );
+    let intersects = this.raycaster.intersectObjects( this.objects );
+    // console.log(intersects[0].object == obj);
+    
+    if ( intersects.length <= 0 || intersects[0].object == obj ) {
+      return true;
+    } else {
+      return false;
+    }
+
+  }
+}
+
+
+function toScreenPosition(vector3d) {
+  var vector = vector3d.clone();
+
+  var widthHalf = 0.5*renderer.context.canvas.width;
+  var heightHalf = 0.5*renderer.context.canvas.height;
+
+
+  vector.project(camera);
+
+  vector.x = ( vector.x * widthHalf ) + widthHalf;
+  vector.y = - ( vector.y * heightHalf ) + heightHalf;
+
+  return { 
+      x: vector.x,
+      y: vector.y
+  };
+
+};
