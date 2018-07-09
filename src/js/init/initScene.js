@@ -1,58 +1,46 @@
+const THREE = require('../lib/three/three.js');
+const InfoLabel = require('../InfoLabel.js');
+const { getNormRelativePosition } = require('../lib/myThree/helpers.js')
+
 var grid, cube, cubeInfo, cube2, cube2Info;
 var modelGroup, geometryGroup;
-var infoLabels = [];
-
-window.onload = function() {
-  init();
-  initEvents();
-  grid = addGrid();
-  addLight();
-
-  if (Options.loadModel) {
-    loadModels();
-  } else {
-    initGeometry();
-  }
-
-  // loadModels();
-  // initGeometry()
-
-  initGui();
-  animate();
-};
 
 function initGeometry() {
-  cube = addCube(100, 100, 100);
-  hoverer.addObject(cube);
-  cubeInfo = new InfoLabel(cube, "cube", [0.5, 1, 0.5], hoverer);
-  infoLabels.push(cubeInfo);
 
-  cube2 = addCube(98, 23, 100);
-  cube2.position.x += 60;
-  cube2.position.z += 38;
-  hoverer.addObject(cube2);
-  cube2Info = new InfoLabel(cube2, "cube2", [0.6, 1, 0.6], hoverer);
-  infoLabels.push(cube2Info);
+  addPlain(this.scene);
+  addLight(this.scene);
+  
+  let group = new THREE.Group();
+  this.scene.add(group);
+  this.objects.cubes = group;
+  this.objects._active.push(group);
 
-  addPlain();
+  addObj.call( this,
+    addCube(100, 100, 100),
+    group,
+    "lable_cube",
+    [0.5, 1, 0.5]
+  );
+  
+  addObj.call( this,
+    addCube(98, 23, 100),
+    group,
+    "lable_cube2",
+    [0.5, 1, 0.5],
+    (obj) => {
+      obj.position.x += 60;
+      obj.position.z += 38;
+    }
+  );
 
-  ///
 
-  visibiler.addObjects([cube, cube2]);
-
-  ///
-
-  geometryGroup = new THREE.Group();
-  geometryGroup.add(cube, cube2);
-  geometryGroup.visible = true;
-  scene.add(geometryGroup);
 }
 
-function addGrid() {
+function addGrid(scene) {
   let grid = new THREE.GridHelper(400, 40);
   grid.visible = false;
-  scene.add(grid);
   return grid;
+  scene.add(grid)
 }
 
 function addCube(xs, ys, zs) {
@@ -62,14 +50,14 @@ function addCube(xs, ys, zs) {
     // flatShading: true
   });
   var mesh = new THREE.Mesh(geometry, material);
-  mesh.position.y = ys / 2;
+  mesh.translateY(ys / 2);
   mesh.castShadow = true;
   mesh.receiveShadow = true;
-
+  
   return mesh;
 }
 
-function addPlain() {
+function addPlain(scene) {
   var geometry = new THREE.PlaneBufferGeometry(2000, 2000, 1);
   var material = new THREE.ShadowMaterial();
   material.opacity = 0.9;
@@ -83,7 +71,7 @@ function addPlain() {
   return mesh;
 }
 
-function addLight() {
+function addLight(scene) {
   var dirLight = new THREE.DirectionalLight(0xffffff, 1);
   dirLight.position.set(1 * 200, 1.5 * 200, 2 * 200);
 
@@ -101,7 +89,6 @@ function addLight() {
   dirLight.shadow.camera.top = shadowCameraSize / 2;
 
   scene.add(dirLight);
-  // scene.add( new THREE.CameraHelper( dirLight.shadow.camera ) );
 
   ///
 
@@ -124,14 +111,14 @@ function loadModels() {
     // called when resource is loaded
     function(object) {
       // console.log(object)
-      // scene.add( object );
+      // this.scene.add( object );
       object.visible = true;
       modelGroup = object;
       // if (object[0] == object) console.log(111)
       object.traverse(function(child) {
         if (!(child instanceof THREE.Mesh)) return;
         // console.log(child)
-        hoverer.addObject(child);
+        this.hoverer.addObject(child);
         objects.push(child);
         child.scale.set(0.4, 0.4, 0.4);
         child.rotateY(Math.PI * 1.47);
@@ -144,7 +131,7 @@ function loadModels() {
       });
 
       for (let obj of objects) {
-        new InfoLabel(obj, "container", [0.5, 1, 0.5], hoverer);
+        new InfoLabel(obj, "container", [0.5, 1, 0.5], this.hoverer, this.controls, this.visibiler, this.renderer, this.camera);
       }
     },
     // called when loading is in progresses
@@ -174,3 +161,24 @@ class DivRect {
     this.div.style.left = y + "px";
   }
 }
+
+/////////////
+
+function addObj (obj, group, lableId, relPos, func=null) {
+  if (func) func(obj);
+  group.add(obj);
+  
+  let lable = new InfoLabel(lableId);
+  lable.position.copy(getNormRelativePosition(obj, relPos, 1));
+  obj.add(lable);
+  obj.userData.infoLable = lable;
+  
+  this.hoverer.addObject(obj);
+  this.visibiler.addObstacle(obj);
+  this.visibiler.addChecker(lable.visChecker)
+  
+  return obj;
+};
+
+module.exports = initGeometry;
+

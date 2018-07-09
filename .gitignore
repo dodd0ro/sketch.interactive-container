@@ -1,1 +1,5 @@
-model/*
+*/assets/model/*
+node_modules
+build
+public
+package-lock.json
