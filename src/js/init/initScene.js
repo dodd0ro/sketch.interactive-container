@@ -1,40 +1,41 @@
-const THREE = require('../lib/three/three.js');
-const InfoLabel = require('../InfoLabel.js');
+const THREE = require('../lib/myThree/THREE.js');
+const InfoLabel = require('../components/InfoLabel');
 const { getNormRelativePosition } = require('../lib/myThree/helpers.js')
 
-var grid, cube, cubeInfo, cube2, cube2Info;
-var modelGroup, geometryGroup;
+const {
+  globals: g,
+  objects: threeObjs,
 
-function initGeometry() {
+} = require('../threeGlobals');
 
-  addPlain(this.scene);
-  addLight(this.scene);
-  
-  let group = new THREE.Group();
-  this.scene.add(group);
-  this.objects.cubes = group;
-  this.objects._active.push(group);
+addPlain();
+addLight();
 
-  addObj.call( this,
-    addCube(100, 100, 100),
-    group,
-    "lable_cube",
-    [0.5, 1, 0.5]
-  );
-  
-  addObj.call( this,
-    addCube(98, 23, 100),
-    group,
-    "lable_cube2",
-    [0.5, 1, 0.5],
-    (obj) => {
-      obj.position.x += 60;
-      obj.position.z += 38;
-    }
-  );
+let group = new THREE.Group();
+g.scene.add(group);
+threeObjs.cubes = group;
+threeObjs._active.push(group);
+
+addObj(
+  addCube(100, 100, 100),
+  group,
+  "lable_cube",
+  [0.5, 1, 0.5]
+);
+
+addObj(
+  addCube(98, 23, 100),
+  group,
+  "lable_cube2",
+  [0.5, 1, 0.5],
+  (obj) => {
+    obj.position.x += 60;
+    obj.position.z += 38;
+  }
+);
 
 
-}
+
 
 function addGrid(scene) {
   let grid = new THREE.GridHelper(400, 40);
@@ -57,7 +58,7 @@ function addCube(xs, ys, zs) {
   return mesh;
 }
 
-function addPlain(scene) {
+function addPlain() {
   var geometry = new THREE.PlaneBufferGeometry(2000, 2000, 1);
   var material = new THREE.ShadowMaterial();
   material.opacity = 0.9;
@@ -66,12 +67,12 @@ function addPlain(scene) {
 
   mesh.receiveShadow = true;
 
-  scene.add(mesh);
+  g.scene.add(mesh);
 
   return mesh;
 }
 
-function addLight(scene) {
+function addLight() {
   var dirLight = new THREE.DirectionalLight(0xffffff, 1);
   dirLight.position.set(1 * 200, 1.5 * 200, 2 * 200);
 
@@ -88,12 +89,12 @@ function addLight(scene) {
   dirLight.shadow.camera.bottom = -shadowCameraSize / 2;
   dirLight.shadow.camera.top = shadowCameraSize / 2;
 
-  scene.add(dirLight);
+  g.scene.add(dirLight);
 
   ///
 
   var ambLight = new THREE.AmbientLight(0x222222);
-  scene.add(ambLight);
+  g.scene.add(ambLight);
 }
 
 ////////////
@@ -111,14 +112,14 @@ function loadModels() {
     // called when resource is loaded
     function(object) {
       // console.log(object)
-      // this.scene.add( object );
+      // g.scene.add( object );
       object.visible = true;
       modelGroup = object;
       // if (object[0] == object) console.log(111)
       object.traverse(function(child) {
         if (!(child instanceof THREE.Mesh)) return;
         // console.log(child)
-        this.hoverer.addObject(child);
+        g.hoverer.addObject(child);
         objects.push(child);
         child.scale.set(0.4, 0.4, 0.4);
         child.rotateY(Math.PI * 1.47);
@@ -131,7 +132,7 @@ function loadModels() {
       });
 
       for (let obj of objects) {
-        new InfoLabel(obj, "container", [0.5, 1, 0.5], this.hoverer, this.controls, this.visibiler, this.renderer, this.camera);
+        new InfoLabel(obj, "container", [0.5, 1, 0.5], g.hoverer, g.controls, g.visibiler, g.renderer, g.camera);
       }
     },
     // called when loading is in progresses
@@ -173,12 +174,12 @@ function addObj (obj, group, lableId, relPos, func=null) {
   obj.add(lable);
   obj.userData.infoLable = lable;
   
-  this.hoverer.addObject(obj);
-  this.visibiler.addObstacle(obj);
-  this.visibiler.addChecker(lable.visChecker)
+  g.hoverer.addObject(obj);
+  g.visibiler.addObstacle(obj);
+  g.visibiler.addChecker(lable.visChecker)
   
   return obj;
 };
 
-module.exports = initGeometry;
+
 
