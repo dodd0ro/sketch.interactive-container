@@ -5,5 +5,5 @@ window.onload = function () {
   require('./init/initEvents');
   require('./init/initScene');
   require('./init/initGui');
-	g.animate();
+  g.animate();
 };

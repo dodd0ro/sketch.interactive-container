@@ -15,13 +15,22 @@ gui.close();
 
 ///
 
+
 gui.add(options, 'show', Object.keys(threeObjs))
   // .setValue('cubes')
   .onChange(function (value) {
     for (let obj of threeObjs._active) {
+      obj.traverse(function (child) {
+        child.visible = false;
+      })
       g.scene.remove(obj);
     }
-    g.scene.add(threeObjs[value]); 
+
+    let activeObj = threeObjs[value];
+    activeObj.traverse(function (child) {
+      child.visible = true;
+    })
+    g.scene.add(activeObj); 
   });
 
 ///

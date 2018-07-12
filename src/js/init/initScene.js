@@ -16,6 +16,9 @@ g.scene.add(group);
 threeObjs.cubes = group;
 threeObjs._active.push(group);
 
+let group2 = new THREE.Group();
+threeObjs.cubes2 = group2;
+
 addObj(
   addCube(100, 100, 100),
   group,

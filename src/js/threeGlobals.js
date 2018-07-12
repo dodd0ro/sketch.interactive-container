@@ -38,9 +38,7 @@ const options = {
 };
 
 
-const objects = {
-  objects: {}
-};
+const objects = {};
 Object.defineProperty(objects, '_active', {
   value: [],
   enumerable: false,

@@ -49,15 +49,17 @@ class Visibiler {
     let pointDistance = this.raycaster.ray.origin.distanceTo(position);
 
     // find intersections
-    for (let inter of intersects) {
-      if (inter.distance >= pointDistance) continue;
-      if (!ignoreObjects) return false;
-      for (let obj of ignoreObjects) {
-        if (obj != inter.object) return false;
+    for (let inter of intersects) { // intersects sorted by distance
+      if (inter.distance <= pointDistance) {
+        if (!ignoreObjects) return false;
+        for (let obj of ignoreObjects) {
+          if (obj == inter.object) continue;
+        }
+        return false;
       }
+      return true;
     }
-    // found no intersections
-    return true
+    
   }
 
   /* UPDATE */
