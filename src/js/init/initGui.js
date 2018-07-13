@@ -1,4 +1,5 @@
 const dat = require('../lib/dat.gui.min.js');
+const matLib = require('../materialLib');
 
 const {
   globals: g,
@@ -12,6 +13,19 @@ var gui = new dat.GUI({ width: 200  });
 gui.remember(options);
 gui.useLocalStorage = true;
 gui.close();
+
+gui.constructor.prototype.addThreeColor = function (object, property) {
+  let _object = {};
+  _object[property] = object[property].getHex();
+
+  return this.addColor(_object, property)
+    .onChange((color) => {
+      object[property] = new THREE.Color(color);
+      object.needsUpdate = true;
+    });
+}
+
+
 
 ///
 
@@ -63,6 +77,7 @@ highlighterFolder.add(g.highlighter.pass, "edgeGlow", 0.0, 1.0, 0.1);
 highlighterFolder.add(g.highlighter.pass, "edgeThickness", 1, 4);
 highlighterFolder.add(g.highlighter.pass, "pulsePeriod", 0.0, 5);
 highlighterFolder.add(g.highlighter.pass, "usePatternTexture");
+
 var highlighterColors = {
   visibleEdgeColor: g.highlighter.pass.visibleEdgeColor.getHex(),
   hiddenEdgeColor: g.highlighter.pass.hiddenEdgeColor.getHex()
@@ -73,4 +88,17 @@ highlighterFolder
 highlighterFolder
   .addColor(highlighterColors, "hiddenEdgeColor")
   .onChange(value => g.highlighter.pass.hiddenEdgeColor.set(value));
+
+
+var matirealsFolder = gui.addFolder('materials');
+for (let matName in matLib) {
+  let mat = matLib[matName];
+
+  let matFolder = matirealsFolder.addFolder(mat.name);
+  matFolder.addThreeColor(mat, 'color');
+  matFolder.addThreeColor(mat, 'specular');
+  matFolder.add(mat, 'shininess', 0, 100);
+}
+
+
 

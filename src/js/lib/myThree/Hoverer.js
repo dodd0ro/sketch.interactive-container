@@ -38,12 +38,12 @@ class Hoverer {
 
   updateIntersects() {
     this.raycaster.setFromCamera( this._mouse, this.camera );
-    let intersects = this.raycaster.intersectObjects( this.objects );
+    let intersects = this.raycaster.intersectObjects( this.objects, true );
     
-    if ( intersects.length > 0 ) {
+    if (intersects.length > 0) {
       if ( this._intersected != intersects[ 0 ].object ) {
         if ( this._intersected  ) this.doMouseOut();
-        this._intersected = intersects[ 0 ].object;
+        this._intersected = intersects[0].object;
         this.doMouseOver();
       }
     } else {

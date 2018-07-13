@@ -5,6 +5,7 @@ global.THREE = THREE;
 require('../three/OrbitControls.js');
 require('../three/CSS2DRenderer.js');
 require('../three/OBJLoader.js');
+require('../three/MTLLoader.js');
 
 require('../three/pp/CopyShader.js');
 require('../three/pp/EffectComposer.js');

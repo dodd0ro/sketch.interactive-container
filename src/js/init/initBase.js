@@ -24,12 +24,14 @@ g.canvasHeight = g.containerDiv.clientHeight;
 
 g.scene = new THREE.Scene();
 g.scene.background = new THREE.Color("white");
-g.scene.fog = new THREE.FogExp2(new THREE.Color("#ffffff"), 0.0025);
+g.scene.fog = new THREE.FogExp2(
+  new THREE.Color("#ffffff"), 0.0005  // 0.0025
+); 
 
 /* CAMERA */
 
-g.camera = new THREE.PerspectiveCamera(60, g.canvasWidth / g.canvasHeight, 1, 1000);
-g.camera.position.set(-100, 150, 250);
+g.camera = new THREE.PerspectiveCamera(60, g.canvasWidth / g.canvasHeight, 1, 2000);
+g.camera.position.set(0, 400, 800);
 
 /* RENDERER */
 
@@ -62,6 +64,7 @@ g.animate = animate;
 /* CONTROLS */
 
 g.controls = new THREE.OrbitControls(g.camera, g.containerDiv);
+g.controls.target = new THREE.Vector3(0, 200, 0);
 
 g.controls.rotateSpeed = 0.15; // 1
 

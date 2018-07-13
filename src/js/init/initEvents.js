@@ -64,7 +64,10 @@ const {
     // outline
     let highlighter = g.highlighter;
     highlightOn.on("outline", function (obj) {
-      highlighter.set(obj);
+      for (let subObj of obj.parent.children) {
+        highlighter.add(subObj);
+      }
+      
     });
     highlightOff.on("outline", function () {
       highlighter.clear();
@@ -72,11 +75,18 @@ const {
 
     // emissive
     highlightOn.on("emissive", function (obj) {
-      obj.currentHex = obj.material.emissive.getHex();
-      obj.material.emissive.setHex(new THREE.Color("#005e00").getHex());
+      for (let subObj of obj.parent.children) {
+        subObj.oldMaterial = subObj.material;
+        let newMat = subObj.material.clone();
+        newMat.emissive.setHex(new THREE.Color("#005e00").getHex());
+        subObj.material = newMat;
+      }
     });
     highlightOff.on("emissive", function (obj) {
-      obj.material.emissive.setHex(obj.currentHex);
+      for (let subObj of obj.parent.children) {
+        subObj.material = subObj.oldMaterial;
+        subObj.oldMaterial = undefined;
+      }
     });
   }
 
