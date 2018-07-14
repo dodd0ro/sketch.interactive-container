@@ -6,9 +6,11 @@ const {
   options
 } = require('../threeGlobals');
 
+const matLib = require('../materialLib');
 
 { /* ON TICK */
   g.animate.onTick(function () {
+    matLib.metalBlue.needsUpdate = true;
     g.controls.update();
     g.hoverer.updateIntersects();
   })

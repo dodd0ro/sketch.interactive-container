@@ -14,14 +14,14 @@ gui.remember(options);
 gui.useLocalStorage = true;
 gui.close();
 
-gui.constructor.prototype.addThreeColor = function (object, property) {
-  let _object = {};
-  _object[property] = object[property].getHex();
+gui.constructor.prototype.addThreeColor = function (mat, property) {
+  let _mat = {};
+  _mat[property] = mat[property].getHex();
 
-  return this.addColor(_object, property)
+  return this.addColor(_mat, property)
     .onChange((color) => {
-      object[property] = new THREE.Color(color);
-      object.needsUpdate = true;
+      mat[property] = new THREE.Color(color);
+      mat.needsUpdate = true;
     });
 }
 
@@ -93,11 +93,35 @@ highlighterFolder
 var matirealsFolder = gui.addFolder('materials');
 for (let matName in matLib) {
   let mat = matLib[matName];
+  let matFolder = matirealsFolder.addFolder(matName);
 
-  let matFolder = matirealsFolder.addFolder(mat.name);
-  matFolder.addThreeColor(mat, 'color');
-  matFolder.addThreeColor(mat, 'specular');
-  matFolder.add(mat, 'shininess', 0, 100);
+  for (let prop in matLib._options[matName]) {
+    let val = matLib[matName][prop];
+    if (val === null) continue;
+
+    let type = typeof (val);
+    if (type === 'object') {
+      type = matLib[matName][prop].constructor.name;
+    }
+
+    switch (type) {
+      case 'Color':
+        matFolder.addThreeColor(matLib[matName], prop);
+        break;
+      case 'number':
+        matFolder.add(matLib[matName], prop);
+        break;
+    }
+
+
+    
+    
+    
+  }
+  
+  // matFolder.addThreeColor(mat, 'color');
+  // matFolder.addThreeColor(mat, 'specular');
+  // matFolder.add(mat, 'shininess', 0, 100);
 }
 
 

@@ -6,7 +6,7 @@ const matLib = require('../materialLib')
 const {
   globals: g,
   objects: threeObjs,
-  config
+  config: cnf
 } = require('../threeGlobals');
 
 addPlain();
@@ -112,6 +112,8 @@ function addLight() {
 ////////////
 
 function loadModel() {
+
+
   var reorg = {
     topGroup: new THREE.Group(),
     maps: {},
@@ -172,14 +174,14 @@ function loadModel() {
 
 
   new THREE.MTLLoader().load(
-    config.MODEL_MAT_PATH,
+    cnf.MODELS_BASE_PATH + cnf.MODEL_NAME + '.mtl',
     function (materials) {
       materials.preload();
 
       new THREE.OBJLoader()
         .setMaterials(materials)
         .load(
-          config.MODEL_PATH,
+          cnf.MODELS_BASE_PATH + cnf.MODEL_NAME + '.obj',
           onLoad,
           // called when loading is in progresses
           function (xhr) {

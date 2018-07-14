@@ -31,7 +31,7 @@ g.scene.fog = new THREE.FogExp2(
 /* CAMERA */
 
 g.camera = new THREE.PerspectiveCamera(60, g.canvasWidth / g.canvasHeight, 1, 2000);
-g.camera.position.set(0, 400, 800);
+g.camera.position.set(-600, 200, 600);
 
 /* RENDERER */
 

@@ -1,80 +1,124 @@
-module.exports = {
-  'default': new THREE.MeshPhongMaterial({
-    name: 'default',
-    color: 0xffffff,
-    specular: 0x111111,
-    shininess: 30,
-    envMap: null,
-    map: null,
-    lightMap: null,
-    specularMap: null,
-    alphaMap: null
+const textureBasePath = require('./threeGlobals')
+  .config.TEXTURES_BASE_PATH;
 
-  }),
 
-  'defaultGray': new THREE.MeshPhongMaterial({
-    name: 'defaultGray',
-    color: 0xdcdcdc,
-    specular: 0x111111,
-    shininess: 30,
-    envMap: null,
-    map: null,
-    lightMap: null,
-    specularMap: null,
-    alphaMap: null
-  }),
-
-  'metalBlue': new THREE.MeshPhongMaterial({
-    name: 'metalBlue',
-    color: 0x7287b1, 
-    specular: 0xc5c5c5, 
-    shininess: 15,
-    envMap: null,
-    map: null,
-    lightMap: null,
-    specularMap: null,
-    alphaMap: null
-
-  }),
-
-  'metalGray': new THREE.MeshPhongMaterial({
-    name: 'metalGray',
-    color: 0x595959,
-    specular: 0xffffff,
-    shininess: 3,
-    envMap: null,
-    map: null,
-    lightMap: null,
-    specularMap: null,
-    alphaMap: null
-  }),
-
-  'plasticWhite': new THREE.MeshPhongMaterial({
-    name: 'plasticWhite',
-    color: 0xffffff,
-    specular: 0xc8c8c8,
-    shininess: 7,
-    envMap: null,
-    map: null,
-    lightMap: null,
-    specularMap: null,
-    alphaMap: null
-  }),
-
-  'plasticBlack': new THREE.MeshPhongMaterial({
-    name: 'plasticBlack',
-    color: 0x2f2f2f,
-    specular: 0xdedede,
-    shininess: 7,
-    envMap: null,
-    map: null,
-    lightMap: null,
-    specularMap: null,
-    alphaMap: null
-  })
-
+bitmaps = {
+  'default': new THREE.CubeTextureLoader()
+    .setPath(textureBasePath + 'test/')
+    .load( [ 'px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg' ])
 
 }
+
+
+const matOptions = {
+
+  'default': {
+    type: 'MeshPhongMaterial',
+    color: 0xdcdcdc,
+    roughness: 0.6, 
+    metalness: 0.3,
+    reflectivity: 0.5,
+    refractionRatio: 1,
+    clearCoat: 0.7,
+    clearCoatRoughness: 0.3,
+    envMap: bitmaps['default'],
+    map: null,
+    lightMap: null,
+    alphaMap: null,
+
+  },
+
+  'defaultGray': {
+    type: 'MeshPhysicalMaterial',
+    color: 0xffffff,
+    roughness: 0.6, 
+    metalness: 0.3,
+    reflectivity: 0.5,
+    refractionRatio: 1,
+    clearCoat: 0.7,
+    clearCoatRoughness: 0.3,
+    envMap: bitmaps['default'],
+    map: null,
+    lightMap: null,
+    alphaMap: null,
+  },
+
+  'metalBlue': {
+    type: 'MeshPhysicalMaterial',
+    color: 0x7287b1, 
+    roughness: 0.6, 
+    metalness: 0.7,
+    reflectivity: 0.5,
+    refractionRatio: 1,
+    clearCoat: 0.7,
+    clearCoatRoughness: 0.3,
+    envMap: bitmaps['default'],
+    map: null,
+    lightMap: null,
+    alphaMap: null,
+  },
+
+  'metalGray': {
+    type: 'MeshPhysicalMaterial',
+    color: 0xdcdcdc, 
+    roughness: 0.3, 
+    metalness: 0.7,
+    reflectivity: 1.5,
+    refractionRatio: 1,
+    clearCoat: 0.7,
+    clearCoatRoughness: 0.3,
+    envMap: bitmaps['default'],
+    map: null,
+    lightMap: null,
+    alphaMap: null,
+  },
+
+  'plasticWhite': {
+    type: 'MeshPhysicalMaterial',
+    color: 0xffffff,
+    roughness: 0.5, 
+    metalness: 0.3,
+    reflectivity: 0.3,
+    refractionRatio: 1,
+    clearCoat: 0.7,
+    clearCoatRoughness: 0.3,
+    envMap: bitmaps['default'],
+    map: null,
+    lightMap: null,
+    alphaMap: null,
+  },
+
+  'plasticBlack': {
+    type: 'MeshPhysicalMaterial',
+    color: 0x2f2f2f,
+    roughness: 0.3, 
+    metalness: 0.5,
+    reflectivity: 0.5,
+    refractionRatio: 1,
+    clearCoat: 0.7,
+    clearCoatRoughness: 0.3,
+    envMap: bitmaps['default'],
+    map: null,
+    lightMap: null,
+    alphaMap: null,
+  }
+
+}
+
+const materials = {};
+for (let matName in matOptions) {
+  let matOpt = matOptions[matName];
+  materials[matName] = new THREE[matOpt.type](matOpt);
+  materials[matName].name = matName;
+}
+Object.defineProperty(materials, '_options', {
+  enumerable: false,
+  configurable: false,
+  writable: false,
+  value: matOptions
+})
+
+module.exports = materials;
 
 
 function color (string) {

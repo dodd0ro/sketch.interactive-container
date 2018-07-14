@@ -1,7 +1,8 @@
 const config = {
   THREE_DIV_ID: 'three',
-  MODEL_PATH: './assets/model/container.obj',
-  MODEL_MAT_PATH: './assets/model/container.mtl',
+  MODEL_NAME: 'container',
+  MODELS_BASE_PATH: './assets/model/',
+  TEXTURES_BASE_PATH: './assets/textures/',
   MODEL_SCALE: 1
 };
 
