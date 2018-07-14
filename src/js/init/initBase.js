@@ -71,7 +71,7 @@ g.controls.rotateSpeed = 0.15; // 1
 g.controls.enableDamping = true;
 g.controls.dampingFactor = 0.1; // 0.25
 
-g.controls.minPolarAngle = Math.PI * 0.25;
+g.controls.minPolarAngle = Math.PI * 0.35;
 g.controls.maxPolarAngle = Math.PI * 0.49;
 
 g.controls.autoRotate = true;

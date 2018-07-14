@@ -12,7 +12,7 @@ const {
 addPlain();
 addLight();
 
-loadModel();
+loadObjs();
 
 // let group = new THREE.Group();
 // g.scene.add(group);
@@ -79,6 +79,9 @@ function addPlain() {
 }
 
 function addLight() {
+
+  /* DIR LIGHT */
+
   const distMult = 400;
   const shadowBoxWidth = 1000;
 
@@ -103,58 +106,48 @@ function addLight() {
   );
   g.scene.add(dirLight);
 
-  ///
+  /* AMB LIGHT */
 
   var ambLight = new THREE.AmbientLight(0x222222);
   g.scene.add(ambLight);
+
+  /* POINT LIGHT */
+  // var ptLight = new THREE.PointLight(0xffffff, 0.1);
+  // ptLight.castShadow = true;
+  // ptLight.shadow.bias = -0.002 // 0.0001
+  // ptLight.position.set(300, 200, -300);
+  
+  // g.scene.add(
+  //   new THREE.PointLightHelper(ptLight, 30)
+  // );
+  // g.scene.add(ptLight);
 }
 
 ////////////
 
-function loadModel() {
 
+function loadObjs() {
+  const topGroup = new THREE.Group();
+  const groupMaps = {};
+  const promises = [];
+  ///
 
-  var reorg = {
-    topGroup: new THREE.Group(),
-    maps: {},
-    addObj: function (obj) {
-      // check group chain
-      if (!this.maps[obj.name]) {
-        let group = this.topGroup;
-        for (let groupName of obj.name.split('__')) {
-          let curGroup = group.getObjectByName(groupName);
-          if (!curGroup) {
-            curGroup = new THREE.Group();
-            curGroup.name = groupName;
-            group.add(curGroup);
-            g.hoverer.addObject(curGroup); // !!!
-          }
-          group = curGroup;
-        }
-
-        this.maps[obj.name] = {
-          group: group,
-          objects: []
-        };
-      }
-
-      // add obj to maps
-      this.maps[obj.name].objects.push(obj);
-    },
-    moveObjToGroups: function () {
-      for (let mapName in this.maps) {
-        let map = this.maps[mapName];
-        for (let obj of map.objects) {
-          map.group.add(obj);
-        }
-
-      }
-    }
-
-  }
- 
   
-  function onLoad(object) {
+  for (let modelName of cnf.MODEL_NAMES) {
+    promises.push(
+      new Promise((resolve) => {
+        load(modelName, resolve);
+      })
+    );
+  }
+
+  ///
+  
+  bakeGroup();
+
+  ///
+
+  function onObjLoad(object) {
     for (let child of object.children) {
       if (!(child instanceof THREE.Mesh)) {
         return;
@@ -164,48 +157,83 @@ function loadModel() {
       
       child.material = matLib[child.material.name];
       child.material.side = THREE.DoubleSide;
-      
-      reorg.addObj(child);
+      child.material.shadowSide = THREE.DoubleSide;
+
+      let groupMap = detGroupMapByName(child.name);
+      groupMap.objects.push(child);
     }
-    
-    reorg.moveObjToGroups();
-    g.scene.add(reorg.topGroup.getObjectByName('model'))
+  }
+
+  function bakeGroup() {
+    Promise.all(promises).then(() => {
+      // melt maps down
+      for (let mapName in groupMaps) {
+        let map = groupMaps[mapName];
+        for (let obj of map.objects) {
+          map.group.add(obj);
+        }
+      }
+
+      ///
+      
+      g.scene.add(topGroup);
+    })
+  }
+
+  function load(modelName, resolve) {
+    new THREE.MTLLoader().load(
+      cnf.MODELS_BASE_PATH + modelName + '.mtl',
+      function (materials) {
+        materials.preload();
+  
+        new THREE.OBJLoader()
+          .setMaterials(materials)
+          .load(
+            cnf.MODELS_BASE_PATH + modelName + '.obj',
+            function (object) {
+              onObjLoad(object);
+              resolve();
+            },
+            // called when loading is in progresses
+            function (xhr) {
+              console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+            },
+            // called when loading has errors
+            function (error) {
+              console.log("An error happened");
+            }
+          );
+      }
+    )
+
+
   }
 
 
-  new THREE.MTLLoader().load(
-    cnf.MODELS_BASE_PATH + cnf.MODEL_NAME + '.mtl',
-    function (materials) {
-      materials.preload();
 
-      new THREE.OBJLoader()
-        .setMaterials(materials)
-        .load(
-          cnf.MODELS_BASE_PATH + cnf.MODEL_NAME + '.obj',
-          onLoad,
-          // called when loading is in progresses
-          function (xhr) {
-            console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
-          },
-          // called when loading has errors
-          function (error) {
-            console.log("An error happened");
-          }
-        );
+  function detGroupMapByName(name) {
+    if (!groupMaps[name]) {
+      let group = topGroup;
+      for (let groupName of name.split('__')) {
+        let curGroup = group.getObjectByName(groupName);
+        if (!curGroup) {
+          curGroup = new THREE.Group();
+          curGroup.name = groupName;
+          group.add(curGroup);
+          g.hoverer.addObject(curGroup); // !!!
+        }
+        group = curGroup;
+      }
+
+      groupMaps[name] = {
+        group: group,
+        objects: []
+      };
     }
-  )
-  
-  
+    return groupMaps[name];
+  }
 
-
-
-
-
-  
-
-  
 }
-
 
 class DivRect {
   constructor(w, h) {

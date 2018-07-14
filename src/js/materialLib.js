@@ -13,7 +13,7 @@ bitmaps = {
 const matOptions = {
 
   'default': {
-    type: 'MeshPhongMaterial',
+    type: 'MeshPhysicalMaterial',
     color: 0xdcdcdc,
     roughness: 0.6, 
     metalness: 0.3,
