@@ -1,13 +1,9 @@
 const THREE = require('../lib/myThree/THREE.js');
 const InfoLabel = require('../components/InfoLabel');
-const { getNormRelativePosition } = require('../lib/myThree/helpers.js')
 
 const matLib = require('../materialLib')
-const {
-  globals: g,
-  objects: threeObjs,
-  config: cnf
-} = require('../threeGlobals');
+const g = require('../threeGlobals');
+const cnf = require('../config');
 
 addPlain();
 addLight();
@@ -101,9 +97,9 @@ function addLight() {
   dirLight.shadow.camera.bottom = -shadowBoxWidth / 2;
   dirLight.shadow.camera.top = shadowBoxWidth / 2;
 
-  g.scene.add(
-    new THREE.CameraHelper(dirLight.shadow.camera)
-  );
+  // g.scene.add(
+  //   new THREE.CameraHelper(dirLight.shadow.camera)
+  // );
   g.scene.add(dirLight);
 
   /* AMB LIGHT */
@@ -130,9 +126,10 @@ function loadObjs() {
   const topGroup = new THREE.Group();
   const groupMaps = {};
   const promises = [];
-  ///
 
-  
+  const loadedObjects = {};
+
+  // create load promises for all models
   for (let modelName of cnf.MODEL_NAMES) {
     promises.push(
       new Promise((resolve) => {
@@ -141,13 +138,27 @@ function loadObjs() {
     );
   }
 
-  ///
-  
-  bakeGroup();
+  // bake groups
+  Promise.all(promises).then(() => {
+    for (let objName in loadedObjects) {
+      let obj = loadedObjects[objName];
+      onObjLoad(obj, objName);
+    }
+    // melt maps down
+    for (let mapName in groupMaps) {
+      let map = groupMaps[mapName];
+      for (let obj of map.objects) {
+        map.group.add(obj);
+      }
+    }
 
-  ///
+    // add to scene
+    g.scene.add(topGroup);
+  })
 
-  function onObjLoad(object) {
+  /////////////////////////////////////
+
+  function onObjLoad(object, modelName) {
     for (let child of object.children) {
       if (!(child instanceof THREE.Mesh)) {
         return;
@@ -157,27 +168,14 @@ function loadObjs() {
       
       child.material = matLib[child.material.name];
       child.material.side = THREE.DoubleSide;
-      child.material.shadowSide = THREE.DoubleSide;
+      // child.material.shadowSide = THREE.DoubleSide;
 
       let groupMap = detGroupMapByName(child.name);
       groupMap.objects.push(child);
+
+      g.objTagger.set('model', modelName, child)
+      g.objTagger.set('group', child.name, child)
     }
-  }
-
-  function bakeGroup() {
-    Promise.all(promises).then(() => {
-      // melt maps down
-      for (let mapName in groupMaps) {
-        let map = groupMaps[mapName];
-        for (let obj of map.objects) {
-          map.group.add(obj);
-        }
-      }
-
-      ///
-      
-      g.scene.add(topGroup);
-    })
   }
 
   function load(modelName, resolve) {
@@ -190,8 +188,8 @@ function loadObjs() {
           .setMaterials(materials)
           .load(
             cnf.MODELS_BASE_PATH + modelName + '.obj',
-            function (object) {
-              onObjLoad(object);
+          function (object) {
+              loadedObjects[modelName] = object
               resolve();
             },
             // called when loading is in progresses
@@ -206,10 +204,7 @@ function loadObjs() {
       }
     )
 
-
   }
-
-
 
   function detGroupMapByName(name) {
     if (!groupMaps[name]) {
@@ -257,15 +252,12 @@ class DivRect {
 function addObj (obj, group, lableId, relPos, func=null) {
   if (func) func(obj);
   group.add(obj);
-  
-  let lable = new InfoLabel(lableId);
-  lable.position.copy(getNormRelativePosition(obj, relPos, 1));
-  obj.add(lable);
-  obj.userData.infoLable = lable;
-  
   g.hoverer.addObject(obj);
   g.visibiler.addObstacle(obj);
-  g.visibiler.addChecker(lable.visChecker)
+  
+  let lable = new InfoLabel(lableId);
+  lable.connectObject(obj, relPos);
+  lable.connectVisibiler(g.visibiler);
   
   return obj;
 };

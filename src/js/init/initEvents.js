@@ -1,10 +1,8 @@
 const THREE = require('../lib/myThree/THREE.js');
 const Foggle = require('../lib/Foggle.js');
 
-const {
-  globals: g,
-  options
-} = require('../threeGlobals');
+const g = require('../threeGlobals');
+
 
 const matLib = require('../materialLib');
 
@@ -19,9 +17,9 @@ const matLib = require('../materialLib');
 { /* ON TICK END */
   g.animate.onTick(function () {
     // #bad! 
-    if (options.highlightMode == "emissive") g.renderer.render(g.scene, g.camera);
+    if (g.options.highlightMode == "emissive") g.renderer.render(g.scene, g.camera);
     g.labelRenderer.render(g.scene, g.camera);
-    if (options.highlightMode == "outline") g.composer.render();
+    if (g.options.highlightMode == "outline") g.composer.render();
   });
 }
 
@@ -51,15 +49,15 @@ const matLib = require('../materialLib');
 
   // visibiler
   g.controls.addEventListener('change', function() {
-    if (options.hideLabels) g.visibiler.update();
+    if (g.options.hideLabels) g.visibiler.update();
   });
 }
 
 { /* HOVERER */
 
   {  /* HIGHLIGHT */
-    var highlightOn = new Foggle(options, "highlightMode");
-    var highlightOff = new Foggle(options, "highlightMode");
+    var highlightOn = new Foggle(g.options, "highlightMode");
+    var highlightOff = new Foggle(g.options, "highlightMode");
     g.hoverer.onMouseOver(highlightOn);
     g.hoverer.onMouseOut(highlightOff);
 
@@ -69,7 +67,6 @@ const matLib = require('../materialLib');
       for (let subObj of obj.parent.children) {
         highlighter.add(subObj);
       }
-      
     });
     highlightOff.on("outline", function () {
       highlighter.clear();
@@ -77,7 +74,7 @@ const matLib = require('../materialLib');
 
     // emissive
     highlightOn.on("emissive", function (obj) {
-      for (let subObj of obj.parent.children) {
+      for (let subObj of g.objTagger.getByObject('group', obj)) {
         subObj.oldMaterial = subObj.material;
         let newMat = subObj.material.clone();
         newMat.emissive.setHex(new THREE.Color("#005e00").getHex());
@@ -85,7 +82,7 @@ const matLib = require('../materialLib');
       }
     });
     highlightOff.on("emissive", function (obj) {
-      for (let subObj of obj.parent.children) {
+      for (let subObj of g.objTagger.getByObject('group', obj)) {
         subObj.material = subObj.oldMaterial;
         subObj.oldMaterial = undefined;
       }
@@ -93,8 +90,8 @@ const matLib = require('../materialLib');
   }
 
   { /* LABELS */
-    var showLable = new Foggle(options, "hideLabels");
-    var hideLable = new Foggle(options, "hideLabels");
+    var showLable = new Foggle(g.options, "hideLabels");
+    var hideLable = new Foggle(g.options, "hideLabels");
     g.hoverer.onMouseOver(showLable);
     g.hoverer.onMouseOut(hideLable);
 

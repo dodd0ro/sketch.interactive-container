@@ -1,3 +1,5 @@
+const { getNormRelativePosition } = require('../lib/myThree/helpers.js')
+
 class InfoLabel extends THREE.CSS2DObject {
 	constructor(templateId) {
 		super(document.createElement( 'div' ));
@@ -19,6 +21,24 @@ class InfoLabel extends THREE.CSS2DObject {
 		this.element.className = 'label';
 		this.element.appendChild(containerDiv);
 		// this.hide();
+	}
+
+	connectObject(obj, relativePosition = null) {
+		if (relativePosition) {
+			this.position.copy(getNormRelativePosition(obj, relativePosition));
+		}
+		obj.add(this);
+		obj.userData.infoLable = this;
+	}
+
+	
+	connectVisibiler(visibiler) {
+		visibiler.addChecker({
+			position: this.position.clone().add(this.parent.position),
+			onVisible: () => { this.hide(false) },
+			onNotVisible: () => { if (!this.isSelected) this.hide(true) },
+			// ignoreObjects: [this.parent]
+		});
 	}
 
 	get classList() {
@@ -67,17 +87,7 @@ class InfoLabel extends THREE.CSS2DObject {
 			el.classList.remove('hidden');
 		}
 	}
-	
-	/* VISIBILER */
 
-	get visChecker() {
-		return {
-				position: this.position.clone().add(this.parent.position),
-				onVisible: () => { this.hide(false) },
-				onNotVisible: () => { if (!this.isSelected) this.hide(true) },
-				// ignoreObjects: [this.parent]
-		};
-	}
 
 }
 

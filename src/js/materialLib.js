@@ -1,7 +1,5 @@
-const textureBasePath = require('./threeGlobals')
-  .config.TEXTURES_BASE_PATH;
-
-
+const textureBasePath = require('./config').TEXTURES_BASE_PATH;
+  
 bitmaps = {
   'default': new THREE.CubeTextureLoader()
     .setPath(textureBasePath + 'test/')

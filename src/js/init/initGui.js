@@ -1,16 +1,13 @@
 const dat = require('../lib/dat.gui.min.js');
 const matLib = require('../materialLib');
 
-const {
-  globals: g,
-  objects: threeObjs,
-  options
-} = require('../threeGlobals');
+const g = require('../threeGlobals');
+
 
 ///
 
 var gui = new dat.GUI({ width: 200  });
-gui.remember(options);
+gui.remember(g.options);
 gui.useLocalStorage = true;
 gui.close();
 
@@ -30,33 +27,33 @@ gui.constructor.prototype.addThreeColor = function (mat, property) {
 ///
 
 
-gui.add(options, 'show', Object.keys(threeObjs))
-  // .setValue('cubes')
-  .onChange(function (value) {
-    for (let obj of threeObjs._active) {
-      obj.traverse(function (child) {
-        child.visible = false;
-      })
-      g.scene.remove(obj);
-    }
+// gui.add(g.options, 'show', Object.keys(threeObjs))
+//   // .setValue('cubes')
+//   .onChange(function (value) {
+//     for (let obj of threeObjs._active) {
+//       obj.traverse(function (child) {
+//         child.visible = false;
+//       })
+//       g.scene.remove(obj);
+//     }
 
-    let activeObj = threeObjs[value];
-    activeObj.traverse(function (child) {
-      child.visible = true;
-    })
-    g.scene.add(activeObj); 
-  });
+//     let activeObj = threeObjs[value];
+//     activeObj.traverse(function (child) {
+//       child.visible = true;
+//     })
+//     g.scene.add(activeObj); 
+//   });
 
 ///
 
 var selectionFolder = gui.addFolder("selection");
 selectionFolder.open();
 
-let _defultHighlightMode = options.highlightMode;
-selectionFolder.add(options, "highlightMode", options._highlightMode)
+let _defultHighlightMode = g.options.highlightMode;
+selectionFolder.add(g.options, "highlightMode", g.options._highlightMode)
   .setValue(_defultHighlightMode)
 
-selectionFolder.add(options, "hideLabels");
+selectionFolder.add(g.options, "hideLabels");
 
 ///
 
