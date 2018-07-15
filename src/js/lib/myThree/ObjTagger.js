@@ -23,8 +23,12 @@ class ObjectTagger {
     objTags[key] = value;
   }
 
-  get(key, value) {
-    return this.tags[key][value];
+  get(key, value = null) {
+    if (value) {
+      return this.tags[key][value];
+    } else {
+      return this.tags[key];
+    }
   }
   
   getByObject(key, object) {

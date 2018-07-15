@@ -4,6 +4,7 @@ const Visibiler = require('./lib/myThree/Visibliler')
 const Highlighter = require('./lib/myThree/Highlighter');
 const animate = require('./lib/myThree/animate');
 const ObjTagger = require('./lib/myThree/ObjTagger');
+const ActionsTagger = require('./lib/myThree/ActionsTagger');
 
 const cnf = require('./config');
 
@@ -25,7 +26,9 @@ const g = {
   hoverer: null,
   highlighter: null,
   visibiler: null,
+  //
   objTagger: null,
+  actionsTagger: null,
   //
   animate: null,
   //
@@ -46,9 +49,10 @@ g.options = {
   show: 'cubes'
 };
 
-/* OBJECT TAGGER */
+/* TAGGERS */
 
 g.objTagger = new ObjTagger();
+g.actionsTagger = new ActionsTagger();
 
 /* CONTAINER DIV */
 

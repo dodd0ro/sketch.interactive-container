@@ -8,7 +8,7 @@ const matLib = require('../materialLib');
 
 { /* ON TICK */
   g.animate.onTick(function () {
-    matLib.metalBlue.needsUpdate = true;
+    g.actionsTagger.update();
     g.controls.update();
     g.hoverer.updateIntersects();
   })

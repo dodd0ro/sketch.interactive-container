@@ -8,33 +8,10 @@ const cnf = require('../config');
 addPlain();
 addLight();
 
-loadObjs();
+// let cube = addCube(100, 100, 100);
+// cube.position.fromArray(require('../../assets/model/modelConfig.json').axis)
+// g.scene.add(cube);
 
-// let group = new THREE.Group();
-// g.scene.add(group);
-// threeObjs.cubes = group;
-// threeObjs._active.push(group);
-
-// let group2 = new THREE.Group();
-// threeObjs.cubes2 = group2;
-
-// addObj(
-//   addCube(100, 100, 100),
-//   group,
-//   "lable_cube",
-//   [0.5, 1, 0.5]
-// );
-
-// addObj(
-//   addCube(98, 23, 100),
-//   group,
-//   "lable_cube2",
-//   [0.5, 1, 0.5],
-//   (obj) => {
-//     obj.position.x += 60;
-//     obj.position.z += 38;
-//   }
-// );
 console.log(g.scene.children);
 
 ////////////////////////////////////////////////
@@ -120,115 +97,6 @@ function addLight() {
 }
 
 ////////////
-
-
-function loadObjs() {
-  const topGroup = new THREE.Group();
-  const groupMaps = {};
-  const promises = [];
-
-  const loadedObjects = {};
-
-  // create load promises for all models
-  for (let modelName of cnf.MODEL_NAMES) {
-    promises.push(
-      new Promise((resolve) => {
-        load(modelName, resolve);
-      })
-    );
-  }
-
-  // bake groups
-  Promise.all(promises).then(() => {
-    for (let objName in loadedObjects) {
-      let obj = loadedObjects[objName];
-      onObjLoad(obj, objName);
-    }
-    // melt maps down
-    for (let mapName in groupMaps) {
-      let map = groupMaps[mapName];
-      for (let obj of map.objects) {
-        map.group.add(obj);
-      }
-    }
-
-    // add to scene
-    g.scene.add(topGroup);
-  })
-
-  /////////////////////////////////////
-
-  function onObjLoad(object, modelName) {
-    for (let child of object.children) {
-      if (!(child instanceof THREE.Mesh)) {
-        return;
-      }
-      child.receiveShadow = true;
-      child.castShadow = true;
-      
-      child.material = matLib[child.material.name];
-      child.material.side = THREE.DoubleSide;
-      // child.material.shadowSide = THREE.DoubleSide;
-
-      let groupMap = detGroupMapByName(child.name);
-      groupMap.objects.push(child);
-
-      g.objTagger.set('model', modelName, child)
-      g.objTagger.set('group', child.name, child)
-    }
-  }
-
-  function load(modelName, resolve) {
-    new THREE.MTLLoader().load(
-      cnf.MODELS_BASE_PATH + modelName + '.mtl',
-      function (materials) {
-        materials.preload();
-  
-        new THREE.OBJLoader()
-          .setMaterials(materials)
-          .load(
-            cnf.MODELS_BASE_PATH + modelName + '.obj',
-          function (object) {
-              loadedObjects[modelName] = object
-              resolve();
-            },
-            // called when loading is in progresses
-            function (xhr) {
-              console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
-            },
-            // called when loading has errors
-            function (error) {
-              console.log("An error happened");
-            }
-          );
-      }
-    )
-
-  }
-
-  function detGroupMapByName(name) {
-    if (!groupMaps[name]) {
-      let group = topGroup;
-      for (let groupName of name.split('__')) {
-        let curGroup = group.getObjectByName(groupName);
-        if (!curGroup) {
-          curGroup = new THREE.Group();
-          curGroup.name = groupName;
-          group.add(curGroup);
-          g.hoverer.addObject(curGroup); // !!!
-        }
-        group = curGroup;
-      }
-
-      groupMaps[name] = {
-        group: group,
-        objects: []
-      };
-    }
-    return groupMaps[name];
-  }
-
-}
 
 class DivRect {
   constructor(w, h) {
