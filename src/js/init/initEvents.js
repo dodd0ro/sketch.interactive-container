@@ -99,13 +99,18 @@ const matLib = require('../materialLib');
 
     // hideLabels - true
     showLable.on(true, function (obj) {
-      let lable = obj.userData.infoLable;
+      let lable = g.objTagger.get('lables', obj.name)[0];
+      console.log(lable);
+      
       if (!lable) return;
+      obj.updateMatrixWorld();
+      lable.setNormRelativePosition(obj, [0.5, 1, 0.5]);
+      lable.position = obj.localToWorld(lable.position);
       lable.hide(false);
       lable.select(true);
     });
     hideLable.on(true, function (obj) {
-      let lable = obj.userData.infoLable;
+      let lable = g.objTagger.get('lables', obj.name)[0];
       if (!lable) return;
       lable.hide(true);
       lable.select(false);

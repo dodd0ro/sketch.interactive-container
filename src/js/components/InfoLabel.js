@@ -16,19 +16,22 @@ class InfoLabel extends THREE.CSS2DObject {
 		let containerDiv = document.createElement('div');
 		containerDiv.className = 'label_container'
 		containerDiv.appendChild(_contentDiv);
-		containerDiv.appendChild(_lineDiv);
+		// containerDiv.appendChild(_lineDiv);
 
 		this.element.className = 'label';
 		this.element.appendChild(containerDiv);
-		// this.hide();
 	}
 
 	connectObject(obj, relativePosition = null) {
 		if (relativePosition) {
-			this.position.copy(getNormRelativePosition(obj, relativePosition));
+			this.position.copy(getNormRelativePosition(obj, relativePosition, 1));
 		}
 		obj.add(this);
 		obj.userData.infoLable = this;
+	}
+
+	setNormRelativePosition(obj, relativePosition) {
+		this.position.copy(getNormRelativePosition(obj, relativePosition, 1));
 	}
 
 	
@@ -50,6 +53,7 @@ class InfoLabel extends THREE.CSS2DObject {
 			this.element.classList.add('hidden');
 		else 
 			this.element.classList.remove('hidden');
+		return this
 	}
 
 	get isHidden() {
@@ -61,6 +65,7 @@ class InfoLabel extends THREE.CSS2DObject {
 			this.element.classList.add('selected');
 		else 
 			this.element.classList.remove('selected');
+		return this
 	}
 
 	get isSelected() {

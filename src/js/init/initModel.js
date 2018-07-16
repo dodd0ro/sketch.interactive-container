@@ -6,6 +6,8 @@ const mCnf = require('../../assets/model/modelConfig.json');
 const TWEEN = require('../lib/Tween');
 
 const loadOBJs = require('../lib/myThree/loadOBJs');
+const InfoLabel = require('../components/InfoLabel');
+
 const TopGroup = require('../components/GroupsFromNamesBuilder');
 
 const topGroup = new TopGroup('__'); // #remove!
@@ -36,7 +38,7 @@ function withCild(child, objName) {
   // child.material.shadowSide = THREE.DoubleSide;
 
   g.hoverer.addObject(child);
-
+  
   g.objTagger.set('_modelParts', objName, child)
   g.objTagger.set('group', child.name, child)
   
@@ -57,6 +59,21 @@ function afterLoad() {
     g.objTagger.set('model', modelName, group);
     g.scene.add(group);
   }
+
+  ///
+
+  let parts = g.objTagger.get('group');
+  for (let partName in parts) {
+    let obj = parts[partName][0];
+
+    let lable = new InfoLabel('lable_default').hide();
+    g.scene.add(lable)
+    g.objTagger.set('lables', partName, lable)
+    
+  }
+  console.log(parts);
+  
+
 }
 
 

@@ -24,11 +24,11 @@ class ObjectTagger {
   }
 
   get(key, value = null) {
-    if (value) {
-      return this.tags[key][value];
-    } else {
-      return this.tags[key];
-    }
+    let keyObj = this.tags[key];
+    if (!keyObj) return;
+
+    if (value) return this.tags[key][value];
+    return keyObj;
   }
   
   getByObject(key, object) {
