@@ -37,7 +37,7 @@ function withCild(child, objName) {
   child.material.side = THREE.DoubleSide;
   // child.material.shadowSide = THREE.DoubleSide;
 
-  g.hoverer.addObject(child);
+  // g.hoverer.addObject(child);
   
   g.objTagger.set('_modelParts', objName, child)
   g.objTagger.set('group', child.name, child)
@@ -62,13 +62,97 @@ function afterLoad() {
 
   ///
 
+  /* #bad!!! */
+
+  var outerLablePositions = [
+    "model__opori",
+    "model__vent"
+  ]
+
+  g.lablesLib = {
+    inner: [],
+    outer: []
+  }
+  
+  var objLeft = g.objTagger.get('model', 'containerLeft')[0];
+  var objRight = g.objTagger.get('model', 'containerRight')[0];
+
   let parts = g.objTagger.get('group');
   for (let partName in parts) {
-    let obj = parts[partName][0];
+    let lablePosition = mCnf.lablePositions[partName];
+    if (!lablePosition) continue;
 
-    let lable = new InfoLabel('lable_default').hide();
-    g.scene.add(lable)
+    let lable = new InfoLabel('lable_default');
+    lable.name = partName;
+    
+    lable.position.fromArray(lablePosition);
+
+    //
+
+    if (lablePosition[2] <= 0) {
+      lable.position = objLeft.worldToLocal(lable.position);
+      objLeft.add(lable);
+      // objLeft.add(addCube(10, lable.position))
+    } else {
+      lable.position = objRight.worldToLocal(lable.position);
+      objRight.add(lable);
+      // objRight.add(addCube(10, lable.position))
+    }
+
+    //
+
+    if (outerLablePositions.indexOf(partName) === -1) {
+      g.lablesLib.inner.push(lable);
+      lable.hide();
+    } else {
+      g.lablesLib.outer.push(lable);
+    }
+
+    ///
+
+    lable.hideList();
+    lable.onMouseover(function () {
+      lable.hideList(false);
+      
+      for (let subObj of g.objTagger.get('group', lable.name)) {
+        subObj.oldMaterial = subObj.material;
+        let newMat = subObj.material.clone();
+        newMat.emissive.setHex(new THREE.Color("#005e00").getHex());
+        subObj.material = newMat;
+      }
+
+    });
+    lable.onMouseout(function () {
+      lable.hideList(true);
+
+      for (let subObj of g.objTagger.get('group', lable.name)) {
+        subObj.material = subObj.oldMaterial;
+        subObj.oldMaterial = undefined;
+      }
+
+    });
+
+    ///
+
+    g.containerDiv.onmousedown = function(event) { // #bad!
+      if (event.which == 3) {
+        for (let prop in g.lablesLib) {
+          for (let lable of g.lablesLib[prop]) {
+            if (getComputedStyle(lable.element, null).display === 'none'){
+              lable.element.style.display = 'block'; 
+            } else {
+              lable.element.style.display = 'none'; 
+            }
+          }
+        }
+      }
+  }
+
+    ///
+
     g.objTagger.set('lables', partName, lable)
+
+    
     
   }
   console.log(parts);
@@ -78,6 +162,7 @@ function afterLoad() {
 
 
 function addAnimations() {
+
   var objLeft = g.objTagger.get('model', 'containerLeft')[0];
   var objRight = g.objTagger.get('model', 'containerRight')[0];
   
@@ -128,6 +213,9 @@ function addAnimations() {
           g.controls.minAzimuthAngle = - Math.PI * 1;
           g.controls.autoRotate = false;
           // g.controls.enableZoom = true;
+
+          g.lablesLib.inner.forEach((lable) => lable.hide(false));
+          g.lablesLib.outer.forEach((lable) => lable.hide(true));
         }).start();
         closeTween.stop();
         
@@ -138,6 +226,9 @@ function addAnimations() {
           g.controls.minAzimuthAngle = - Infinity;
           g.controls.autoRotate = true;
           // g.controls.enableZoom = false;
+
+          g.lablesLib.inner.forEach((lable) => lable.hide(true));
+          g.lablesLib.outer.forEach((lable) => lable.hide(false));
         }).start();
         openTween.stop()
       }
@@ -148,5 +239,19 @@ function addAnimations() {
 }
 
 
+
+function addCube(size, position) {
+  var geometry = new THREE.BoxBufferGeometry(size, size, size);
+  var material = new THREE.MeshPhongMaterial({
+    color: 0xffffff
+    // flatShading: true
+  });
+  var mesh = new THREE.Mesh(geometry, material);
+  mesh.position.copy(position);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  
+  return mesh;
+}
 
 

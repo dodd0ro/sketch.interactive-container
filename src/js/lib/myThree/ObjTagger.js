@@ -25,10 +25,10 @@ class ObjectTagger {
 
   get(key, value = null) {
     let keyObj = this.tags[key];
-    if (!keyObj) return;
+    if (!keyObj) return [];
 
-    if (value) return this.tags[key][value];
-    return keyObj;
+    if (value) return this.tags[key][value] || [];
+    return keyObj || {};
   }
   
   getByObject(key, object) {

@@ -78,7 +78,8 @@ class InfoLabel extends THREE.CSS2DObject {
 			.classList.add('hidden');
 		else 
 			this.element.getElementsByTagName('ul')[0]
-			.classList.remove('hidden');
+				.classList.remove('hidden');
+		return this;
 	}
 
 	hideBySelector(cssSelector) {
@@ -93,7 +94,18 @@ class InfoLabel extends THREE.CSS2DObject {
 		}
 	}
 
+	/* EVENTS */
+	onMouseover(func) {
+		this.element.addEventListener("mouseover", function (e) {
+			func(e);
+		});
+	}
 
+	onMouseout(func) {
+		this.element.addEventListener("mouseout", function (e) {
+			func(e);
+		});
+	}
 }
 
 module.exports = InfoLabel;
