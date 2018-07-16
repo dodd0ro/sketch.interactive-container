@@ -1,12 +1,12 @@
-function animate() {
-  requestAnimationFrame(animate.bind(this)); // #bad
+function animate(time) {
+  requestAnimationFrame(animate);
   // onTick
   for (let i = 0; i < animate.funcs.length; i++) {
-    animate.funcs[i]();
+    animate.funcs[i](time);
   }
   // onTickEnd
   for (let i = 0; i < animate.funcsLast.length; i++) {
-    animate.funcsLast[i]();
+    animate.funcsLast[i](time);
   }
 }
 

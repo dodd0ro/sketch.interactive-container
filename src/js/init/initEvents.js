@@ -1,5 +1,6 @@
 const THREE = require('../lib/myThree/THREE.js');
 const Foggle = require('../lib/Foggle.js');
+const TWEEN = require('../lib/Tween');
 
 const g = require('../threeGlobals');
 
@@ -7,7 +8,8 @@ const g = require('../threeGlobals');
 const matLib = require('../materialLib');
 
 { /* ON TICK */
-  g.animate.onTick(function () {
+  g.animate.onTick(function (time) {
+    TWEEN.update(time)
     g.actionsTagger.update();
     g.controls.update();
     g.hoverer.updateIntersects();

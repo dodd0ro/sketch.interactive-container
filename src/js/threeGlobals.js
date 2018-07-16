@@ -29,6 +29,7 @@ const g = {
   //
   objTagger: null,
   actionsTagger: null,
+  tweenLib: {},
   //
   animate: null,
   //

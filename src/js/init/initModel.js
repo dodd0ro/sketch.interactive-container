@@ -3,6 +3,7 @@ const matLib = require('../materialLib')
 const clipLib = require('../clipLib');
 const cnf = require('../config');
 const mCnf = require('../../assets/model/modelConfig.json');
+const TWEEN = require('../lib/Tween');
 
 const loadOBJs = require('../lib/myThree/loadOBJs');
 const TopGroup = require('../components/GroupsFromNamesBuilder');
@@ -20,22 +21,9 @@ onLoadFinish(function (loadedObjects) {
       withCild(child, objName);
     }
   }
-  // add baked group to scene
-  // let group = topGroup.bake();
-
-  let modelParts = g.objTagger.get('_modelParts'); // #Bad!
-  for (let modelName in modelParts) {
-    let group = new THREE.Group();
-    group.add(...modelParts[modelName])
-    
-    g.objTagger.set('model', modelName, group);
-    g.scene.add(group);
-  }
-  console.log(g.objTagger);
   
-
-  // add animations
-  addAnimations()
+  afterLoad();
+  addAnimations();
 })
 
 
@@ -54,24 +42,90 @@ function withCild(child, objName) {
   
 }
 
+function afterLoad() {
+  let modelParts = g.objTagger.get('_modelParts'); // #Bad!
+  for (let modelName in modelParts) {
+    let group = new THREE.Group();
+    group.position.fromArray(mCnf.axis);
+    
+    group.add(...modelParts[modelName])
+    group.updateMatrixWorld();
+    group.children.forEach(child => {
+      child.worldToLocal(child.position);
+    });
+
+    g.objTagger.set('model', modelName, group);
+    g.scene.add(group);
+  }
+}
+
+
 function addAnimations() {
-
-  var obj = g.objTagger.get('model', 'containerRight')[0]; 
+  var objLeft = g.objTagger.get('model', 'containerLeft')[0];
+  var objRight = g.objTagger.get('model', 'containerRight')[0];
   
-  var pivot = new THREE.Group();
-  pivot.position.fromArray(mCnf.axis);
-  pivot.add(obj);
-  pivot.updateMatrixWorld()
+  { /* OPEN */
+    var prop = {y:0}
+    
+    var duration = 500;
+    var easing = TWEEN.Easing.Quadratic.Out;
 
-  g.scene.add(pivot);
+    var maxAng = Math.PI / 5;
+    var stepAng = Math.PI / 5;
+    
+    var openTween = new TWEEN.Tween(prop) 
+      .to({ y: '+' + stepAng}, duration)
+      .easing(easing)
+      .onUpdate(function () {
+        if (prop.y > maxAng) prop.y = maxAng;
+        objRight.rotation.set(0, prop.y, 0)
+        objLeft.rotation.set(0, -prop.y, 0)
+        // objLeft.parent.translateX(-10)
+        })  
+  
+    var closeTween = new TWEEN.Tween(prop) 
+    .to({ y: '-' + stepAng}, duration)
+    .easing(easing)
+      .onUpdate(function () {
+        if (prop.y < 0) prop.y = 0;
+        objRight.rotation.set(0, prop.y, 0)
+        objLeft.rotation.set(0, -prop.y, 0)
+        // objLeft.parent.translateX(10)
+      })
+    tweenLib = g.tweenLib;
+    g.tweenLib.open = openTween;
+    g.tweenLib.close = closeTween;
 
-  obj.children.forEach(child => {
-    child.worldToLocal(child.position);
-  });
+    ///
+    var state = 'closed';
+    
+    var baseMaxAA = g.controls.maxAzimuthAngle;
+    var baseMinAA = g.controls.minAzimuthAngle;
 
-  let action = g.actionsTagger.set('test', pivot, clipLib['rotate'])
-  action.loop = THREE.LoopOnce
-  action.play()
+    g.containerDiv.addEventListener("wheel", function (e) {
+      var delta = e.deltaY || e.detail || e.wheelDelta;
+      if (delta > 0) {
+        openTween.onComplete(() => {
+          state = 'opened'
+          g.controls.maxAzimuthAngle =  Math.PI * 0;
+          g.controls.minAzimuthAngle = - Math.PI * 1;
+          g.controls.autoRotate = false;
+          // g.controls.enableZoom = true;
+        }).start();
+        closeTween.stop();
+        
+      } else {
+        closeTween.onComplete(() => {
+          state = 'closed';
+          g.controls.maxAzimuthAngle = Infinity;
+          g.controls.minAzimuthAngle = - Infinity;
+          g.controls.autoRotate = true;
+          // g.controls.enableZoom = false;
+        }).start();
+        openTween.stop()
+      }
+    });
+  }  
   
 
 }
