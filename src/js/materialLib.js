@@ -28,7 +28,7 @@ const matOptions = {
 
   'defaultGray': {
     type: 'MeshPhysicalMaterial',
-    color: 0xffffff,
+    color: 0xbbbbbb,
     roughness: 0.6, 
     metalness: 0.3,
     reflectivity: 0.5,
@@ -49,7 +49,7 @@ const matOptions = {
     reflectivity: 0.5,
     refractionRatio: 1,
     clearCoat: 0.7,
-    clearCoatRoughness: 0.3,
+    clearCoatRoughness: 0.2,
     envMap: bitmaps['default'],
     map: null,
     lightMap: null,
@@ -64,7 +64,7 @@ const matOptions = {
     reflectivity: 1.5,
     refractionRatio: 1,
     clearCoat: 0.7,
-    clearCoatRoughness: 0.3,
+    clearCoatRoughness: 0.1,
     envMap: bitmaps['default'],
     map: null,
     lightMap: null,

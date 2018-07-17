@@ -66,7 +66,8 @@ function afterLoad() {
 
   var outerLablePositions = [
     "model__opori",
-    "model__vent"
+    "model__vent",
+    "model__karkas"
   ]
 
   g.lablesLib = {
@@ -81,8 +82,9 @@ function afterLoad() {
   for (let partName in parts) {
     let lablePosition = mCnf.lablePositions[partName];
     if (!lablePosition) continue;
-
-    let lable = new InfoLabel('lable_default');
+    
+    console.log('lable_'+partName);
+    let lable = new InfoLabel('lable_'+partName);
     lable.name = partName;
     
     lable.position.fromArray(lablePosition);
@@ -115,20 +117,31 @@ function afterLoad() {
       lable.hideList(false);
       
       for (let subObj of g.objTagger.get('group', lable.name)) {
-        subObj.oldMaterial = subObj.material;
-        let newMat = subObj.material.clone();
-        newMat.emissive.setHex(new THREE.Color("#005e00").getHex());
-        subObj.material = newMat;
+        if (g.options.highlightMode == 'outline') {
+          g.highlighter.add(subObj);
+        } else if (g.options.highlightMode == 'emissive') {
+          subObj.oldMaterial = subObj.material;
+          let newMat = subObj.material.clone();
+          newMat.emissive.setHex(new THREE.Color("#005e00").getHex());
+          subObj.material = newMat;
+        }
+
       }
 
     });
     lable.onMouseout(function () {
       lable.hideList(true);
 
-      for (let subObj of g.objTagger.get('group', lable.name)) {
-        subObj.material = subObj.oldMaterial;
-        subObj.oldMaterial = undefined;
+      if (g.options.highlightMode == 'outline') {
+        g.highlighter.clear();
+      } else if (g.options.highlightMode == 'emissive') {
+        for (let subObj of g.objTagger.get('group', lable.name)) {
+          subObj.material = subObj.oldMaterial;
+          subObj.oldMaterial = undefined;
+        }
       }
+
+
 
     });
 

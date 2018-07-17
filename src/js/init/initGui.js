@@ -67,6 +67,19 @@ controlsFolder.add(g.controls, "maxPolarAngle", 0, Math.PI);
 
 ///
 
+var highlighterFolder = gui.addFolder("light");
+highlighterFolder.add(g.scene.getObjectByName('ambLight'), 'intensity');
+let dirLight = g.scene.getObjectByName('dirLight'); // #bad!
+let dirLightPositionArray = dirLight.position.clone();
+for (let axis in dirLightPositionArray) {
+  highlighterFolder.add(dirLightPositionArray, axis)
+  .onChange((value) => {
+    dirLight.position['set'+ axis.toUpperCase()](value);
+  });
+}
+
+///
+
 var highlighterFolder = gui.addFolder("highlighter");
 // highlighterFolder.open();
 highlighterFolder.add(g.highlighter.pass, "edgeStrength", 0.01, 10);

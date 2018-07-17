@@ -59,8 +59,9 @@ function addLight() {
   const shadowBoxWidth = 1000;
 
   var dirLight = new THREE.DirectionalLight(0xffffff, 1);
+  dirLight.name = 'dirLight';
 
-  dirLight.position.set(-1 * distMult, 1 * distMult, 1 * distMult);
+  dirLight.position.set(-1 * distMult, 1.2 * distMult, 0.5 * distMult);
   dirLight.shadow.camera.near = 0.2;
   dirLight.shadow.camera.far = 2000; 
   
@@ -81,7 +82,9 @@ function addLight() {
 
   /* AMB LIGHT */
 
-  var ambLight = new THREE.AmbientLight(0x222222);
+  var ambLight = new THREE.AmbientLight(0xffffff);
+  ambLight.intensity = 0.5;
+  ambLight.name = 'ambLight';
   g.scene.add(ambLight);
 
   /* POINT LIGHT */
