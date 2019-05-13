@@ -12,7 +12,7 @@ addLight();
 // cube.position.fromArray(require('../../assets/model/modelConfig.json').axis)
 // g.scene.add(cube);
 
-console.log(g.scene.children);
+console.log('scene.children:', g.scene.children);
 
 ////////////////////////////////////////////////
 

@@ -2,22 +2,21 @@
 
 var isDev = true;
 
-const stylesMainPath = './src/styles/main.scss',
+var stylesMainPath = './src/styles/main.scss',
 	stylesPath = './src/styles/**/*',
-	distPath = './public',
+	distPath = './public_dev',
+	distProdPath = './public',
 	assetsPath = 'src/assets/**/*',
 	htmlPath = 'src/html/**/*',
 	jsPath = 'src/js/**/*',
-	jsBasePath = 'src/js/',
 	jsMainPath = 'src/js/main.js';
 
 const gulp = require('gulp'),
 	gp = require('gulp-load-plugins')(),
-	rollup = require('rollup-stream'),
-	source = require('vinyl-source-stream'),
-	buffer = require('vinyl-buffer'),
 	del = require('del'),
-	browserSync = require('browser-sync').create();
+	browserSync = require('browser-sync').create(),
+	uglify = require('gulp-uglify'),
+	babelify = require('babelify');
 
 //
 
@@ -42,6 +41,7 @@ function turnDevModeOn(callback) {
 }
 function turnDevModeOff(callback) {
 	isDev = false;
+	distPath = distProdPath;
 	callback();
 }
 
@@ -89,33 +89,32 @@ gulp.task('html', function() {
 		.on('end', Server.reload);
 });
 
-// gulp.task('js', function() {
-// 	return rollup({
-// 			input: jsMainPath,
-// 			sourcemap: true,
-// 			format: 'es'
-// 		})
-// 		.pipe(source('main.js', './src/js'))
-// 		.pipe(buffer())
-// 		.pipe(gp.if(isDev, gp.sourcemaps.init({ loadMaps: true })))
-// 		.pipe(gp.if(isDev, gp.sourcemaps.write('./source/js')))
-// 		.pipe(gulp.dest(distPath))
-// 		.pipe(gp.debug({ title: 'js:dest' }))
-// 		.on('end', Server.reload);
-// });
-
 gulp.task('js', function() {
 	return gulp
-	.src(jsMainPath)
-	.pipe(gp.browserify({
-		insertGlobals : true,
-		debug : isDev
-		}))
-	.pipe(gp.if(isDev, gp.sourcemaps.init({ loadMaps: true } )))
-	.pipe(gp.if(isDev, gp.sourcemaps.write('./source/js')))
-	.pipe(gulp.dest(distPath))
-	.pipe(gp.debug({ title: 'js:dest' }))
-	.on('end', Server.reload);
+		.src(jsMainPath)
+		.pipe(
+			gp.browserify({
+				insertGlobals: true,
+				debug: isDev,
+				transform: [
+					babelify.configure({
+						compact: false, //QUEST
+						presets: [
+							['@babel/env', {
+								"targets": { "browsers": "> 0.5%, last 2 versions, Firefox ESR, not dead" }
+							}]
+						],
+						sourceMaps: true
+					})
+				]
+			})
+		)
+		.pipe(gp.if(isDev, gp.sourcemaps.init({ loadMaps: true })))
+		.pipe(gp.if(!isDev, uglify()))
+		.pipe(gp.if(isDev, gp.sourcemaps.write('./source/js')))
+		.pipe(gulp.dest(distPath))
+		.pipe(gp.debug({ title: 'js:dest' }))
+		.on('end', Server.reload);
 });
 
 // Main tasks //

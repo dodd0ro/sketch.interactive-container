@@ -1,4 +1,4 @@
- g = require('./threeGlobals');
+window.g = require('./threeGlobals');
 
 window.onload = function () {
   require('./init/initScene');

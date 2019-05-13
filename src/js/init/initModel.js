@@ -83,20 +83,19 @@ function afterLoad() {
     let lablePosition = mCnf.lablePositions[partName];
     if (!lablePosition) continue;
     
-    console.log('lable_'+partName);
+    console.log('lable:', 'lable'+partName);
     let lable = new InfoLabel('lable_'+partName);
     lable.name = partName;
-    
     lable.position.fromArray(lablePosition);
 
     //
 
     if (lablePosition[2] <= 0) {
-      lable.position = objLeft.worldToLocal(lable.position);
+      lable.position.fromArray(objLeft.worldToLocal(lable.position).toArray());
       objLeft.add(lable);
       // objLeft.add(addCube(10, lable.position))
     } else {
-      lable.position = objRight.worldToLocal(lable.position);
+      lable.position.fromArray(objRight.worldToLocal(lable.position).toArray());
       objRight.add(lable);
       // objRight.add(addCube(10, lable.position))
     }
@@ -168,7 +167,7 @@ function afterLoad() {
     
     
   }
-  console.log(parts);
+  console.log('parts:', parts);
   
 
 }
@@ -207,7 +206,6 @@ function addAnimations() {
         objLeft.rotation.set(0, -prop.y, 0)
         // objLeft.parent.translateX(10)
       })
-    tweenLib = g.tweenLib;
     g.tweenLib.open = openTween;
     g.tweenLib.close = closeTween;
 

@@ -1,5 +1,5 @@
-*/assets/model/*
+/src/assets/model/*
 node_modules
-build
-public
+/public_dev
 package-lock.json
+.vscode

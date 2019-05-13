@@ -1,6 +1,6 @@
 const textureBasePath = require('./config').TEXTURES_BASE_PATH;
   
-bitmaps = {
+var bitmaps = {
   'default': new THREE.CubeTextureLoader()
     .setPath(textureBasePath + 'test/')
     .load( [ 'px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg' ])
