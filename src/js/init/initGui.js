@@ -71,7 +71,7 @@ var highlighterFolder = gui.addFolder("light");
 highlighterFolder.add(g.scene.getObjectByName('ambLight'), 'intensity');
 let dirLight = g.scene.getObjectByName('dirLight'); // #bad!
 let dirLightPositionArray = dirLight.position.clone();
-for (let axis in dirLightPositionArray) {
+for (let axis of ['x', 'y', 'z']) {
   highlighterFolder.add(dirLightPositionArray, axis)
   .onChange((value) => {
     dirLight.position['set'+ axis.toUpperCase()](value);
